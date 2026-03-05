@@ -12,11 +12,17 @@
 
         // 키보드 이벤트 리스너
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
-            else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
-            else if (e.key === 'ArrowLeft' && dx === 0) { dx = -20; dy = 0; }
-            else if (e.key === 'ArrowRight' && dx === 0) { dx = 20; dy = 0; }
-        });
+    // 화살표 키인지 확인하고 스크롤 방지
+    if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+    }
+
+    // 방향 전환 로직 (기존과 동일)
+    if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
+    else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
+    else if (e.key === 'ArrowLeft' && dx === 0) { dx = -20; dy = 0; }
+    else if (e.key === 'ArrowRight' && dx === 0) { dx = 20; dy = 0; }
+});
 
         function drawGame() {
             // 머리 이동
