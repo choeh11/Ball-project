@@ -18,41 +18,53 @@
         const ctx = canvas.getContext("2d");
         const startBtn = document.getElementById("startButton");
 
-        let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
-        let dx = 20, dy = 0;
-        let food = {x: 300, y: 200};
-        let isStarted = false;
+        let snake, dx, dy, food, isStarted, isGameOver;
 
-        function startGame() {
+        // 게임 초기화 함수 (처음 시작하거나 재시작할 때 호출)
+        function initGame() {
+            snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
+            dx = 20;
+            dy = 0;
+            food = {x: 300, y: 200};
             isStarted = true;
+            isGameOver = false;
             startBtn.style.display = 'none';
             drawGame();
         }
 
-        startBtn.addEventListener('click', startGame);
+        startBtn.addEventListener('click', () => {
+            if (!isStarted || isGameOver) initGame();
+        });
 
-document.addEventListener('keydown', (e) => {
-    // 화살표 키나 스페이스바가 눌리면 스크롤 방지
-    if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
-        e.preventDefault();
-    }
+        document.addEventListener('keydown', (e) => {
+            // 스크롤 방지 (방향키, 스페이스바)
+            if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
 
-    // 게임 시작 (스페이스바)
-    if (e.code === 'Space' && !isStarted) {
-        startGame();
-    }
-    
-    // 방향 전환 로직
-    if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
-    else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
-    else if (e.key === 'ArrowLeft' && dx === 0) { dx = -20; dy = 0; }
-    else if (e.key === 'ArrowRight' && dx === 0) { dx = 20; dy = 0; }
-});
+            // 시작 또는 재시작 (스페이스바)
+            if (e.code === 'Space') {
+                if (!isStarted || isGameOver) initGame();
+            }
+            
+            // 방향 전환 (게임 중일 때만)
+            if (isStarted && !isGameOver) {
+                if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
+                else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
+                else if (e.key === 'ArrowLeft' && dx === 0) { dx = -20; dy = 0; }
+                else if (e.key === 'ArrowRight' && dx === 0) { dx = 20; dy = 0; }
+            }
+        });
 
         function drawGame() {
-            if (!isStarted) return;
+            if (isGameOver) return; // 게임 오버 상태면 더 이상 그리지 않음
 
             let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+            // [벽 충돌 체크]
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                gameOver();
+                return;
+            }
+
             snake.unshift(head);
             if (head.x === food.x && head.y === food.y) {
                 food = {x: Math.floor(Math.random() * 20) * 20, y: Math.floor(Math.random() * 20) * 20};
@@ -60,25 +72,40 @@ document.addEventListener('keydown', (e) => {
                 snake.pop();
             }
 
-            // 배경 그리기 (연두색으로 채우기)
+            // 배경 그리기
             ctx.fillStyle = "#90EE90";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 열매 그리기 (빨간색 유지)
+            // 열매 그리기
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, 18, 18);
 
-            // 지렁이 그리기 (머리: 파랑, 몸: 하늘)
+            // 지렁이 그리기
             snake.forEach((part, index) => {
-                if (index === 0) {
-                    ctx.fillStyle = "blue"; // 머리는 파랑
-                } else {
-                    ctx.fillStyle = "skyblue"; // 몸은 하늘
-                }
+                ctx.fillStyle = (index === 0) ? "blue" : "skyblue";
                 ctx.fillRect(part.x, part.y, 18, 18);
             });
 
             setTimeout(drawGame, 150);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            
+            // 화면에 GAME OVER 텍스트 그리기
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // 반투명 검은 배경
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "white";
+            ctx.font = "bold 40px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+            
+            ctx.font = "20px Arial";
+            ctx.fillText("Press Space to Restart", canvas.width / 2, canvas.height / 2 + 40);
+
+            startBtn.innerHTML = "다시 시작하기 (Space)";
+            startBtn.style.display = 'block';
         }
     </script>
 </body>
