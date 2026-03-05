@@ -3,62 +3,40 @@
 <body style="background: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
     <canvas id="gameCanvas" width="400" height="400" style="background:black; border: 2px solid white;"></canvas>
 
-            let food = {x: 300, y: 200}; // 초기 먹이 위치
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
+        let dx = 20, dy = 0;
+        let food = {x: 300, y: 200};
+
+        document.addEventListener('keydown', (e) => {
+            if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+            if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
+            else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
+            else if (e.key === 'ArrowLeft' && dx === 0) { dx = -20; dy = 0; }
+            else if (e.key === 'ArrowRight' && dx === 0) { dx = 20; dy = 0; }
+        });
 
         function drawGame() {
             let head = {x: snake[0].x + dx, y: snake[0].y + dy};
             snake.unshift(head);
 
-            // 먹이를 먹었는지 확인
             if (head.x === food.x && head.y === food.y) {
-                // 먹으면 꼬리를 지우지 않아 길이가 1 늘어남
                 food = {x: Math.floor(Math.random() * 20) * 20, y: Math.floor(Math.random() * 20) * 20};
             } else {
-                snake.pop(); // 안 먹으면 꼬리 제거
+                snake.pop();
             }
 
-            // 화면 그리기
+            // 그리기
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 먹이 그리기 (빨간색)
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, 18, 18);
-
-            // 지렁이 그리기 (라임색)
             ctx.fillStyle = "lime";
             snake.forEach(part => ctx.fillRect(part.x, part.y, 18, 18));
 
-            requestAnimationFrame(() => setTimeout(drawGame, 150));
-        }
-
-        // 키보드 이벤트 리스너
-        document.addEventListener('keydown', (e) => {
-    // 화살표 키인지 확인하고 스크롤 방지
-    if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-    }
-
-    // 방향 전환 로직 (기존과 동일)
-    if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
-    else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
-    else if (e.key === 'ArrowLeft' && dx === 0) { dx = -20; dy = 0; }
-    else if (e.key === 'ArrowRight' && dx === 0) { dx = 20; dy = 0; }
-});
-
-        function drawGame() {
-            // 머리 이동
-            let head = {x: snake[0].x + dx, y: snake[0].y + dy};
-            snake.unshift(head); // 새로운 머리 추가
-            snake.pop(); // 마지막 꼬리 제거
-
-            // 화면 그리기
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "lime";
-            snake.forEach(part => ctx.fillRect(part.x, part.y, 18, 18));
-
-            // 화면 밖으로 나가면 멈추거나 리셋 (여기서는 일단 계속 이동)
             requestAnimationFrame(() => setTimeout(drawGame, 150));
         }
         drawGame();
