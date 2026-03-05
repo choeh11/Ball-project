@@ -1,17 +1,36 @@
 <!DOCTYPE html>
 <html>
-<body style="margin: 0; height: 100vh;">
+<body style="margin: 0; overflow: hidden; height: 100vh;">
     
-    <div style="
+    <div id="ball" style="
         position: absolute; 
-        left: 50%; 
-        top: 50%; 
-        transform: translate(-50%, -50%); 
         width: 100px; 
         height: 100px; 
         background-color: red; 
         border-radius: 50%;">
     </div>
 
+    <script>
+        const ball = document.getElementById('ball');
+        let x = 50, y = 50; // 시작 위치
+        let dx = 5, dy = 5;  // 움직이는 속도
+
+        function moveBall() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            // 벽에 닿으면 방향 전환
+            if (x + 100 > width || x < 0) dx = -dx;
+            if (y + 100 > height || y < 0) dy = -dy;
+
+            x += dx;
+            y += dy;
+
+            ball.style.left = x + 'px';
+            ball.style.top = y + 'px';
+            requestAnimationFrame(moveBall);
+        }
+        moveBall();
+    </script>
 </body>
 </html>
