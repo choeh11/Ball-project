@@ -1,17 +1,38 @@
 <!DOCTYPE html>
 <html>
 <body style="background: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
-    <canvas id="gameCanvas" width="400" height="400" style="background:black; border: 2px solid white;"></canvas>
+    <div id="gameContainer" style="position: relative;">
+        <canvas id="gameCanvas" width="400" height="400" style="background:black; border: 2px solid white;"></canvas>
+        
+        <button id="startButton" style="
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            padding: 15px 30px; font-size: 20px; cursor: pointer;">
+            시작하기 (Space)
+        </button>
+    </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const startBtn = document.getElementById("startButton");
 
         let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
         let dx = 20, dy = 0;
         let food = {x: 300, y: 200};
+        let isStarted = false; // 게임 시작 상태 확인 변수
+
+        function startGame() {
+            isStarted = true;
+            startBtn.style.display = 'none'; // 버튼 숨기기
+            drawGame();
+        }
+
+        startBtn.addEventListener('click', startGame);
 
         document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !isStarted) startGame();
+            
             if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
             if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -20; }
             else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 20; }
@@ -20,16 +41,16 @@
         });
 
         function drawGame() {
+            if (!isStarted) return; // 시작 안 했으면 그리지 않음
+
             let head = {x: snake[0].x + dx, y: snake[0].y + dy};
             snake.unshift(head);
-
             if (head.x === food.x && head.y === food.y) {
                 food = {x: Math.floor(Math.random() * 20) * 20, y: Math.floor(Math.random() * 20) * 20};
             } else {
                 snake.pop();
             }
 
-            // 그리기
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "red";
@@ -37,9 +58,8 @@
             ctx.fillStyle = "lime";
             snake.forEach(part => ctx.fillRect(part.x, part.y, 18, 18));
 
-            requestAnimationFrame(() => setTimeout(drawGame, 150));
+            setTimeout(drawGame, 150);
         }
-        drawGame();
     </script>
 </body>
 </html>
